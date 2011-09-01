@@ -1,0 +1,9 @@
+*.o
+*.swc
+*.swf
+src/opencv/calib3d/log/
+src/opencv/contrib/log/
+src/opencv/core/log/
+src/opencv/imgproc/log/
+src/opencv/objdetect/log/
+src/zlib/log/

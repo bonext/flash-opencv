@@ -112,6 +112,8 @@ package{
         trace("Data size: "+cByteData.length);
 
         trace("Here be C++ OpenCV magic");
+        lib.testCV();
+        trace("Magic OK");
 
         trace("Set draw frame from C memory");
         pixels.writeBytes(cByteData,_dataPosition,cByteData.length-_dataPosition);
@@ -128,9 +130,9 @@ package{
         trace("Unreg and remove handlers");
         removeEventListener(Event.ENTER_FRAME,enterFrameHandler);
         removeEventListener(KeyboardEvent.KEY_DOWN,keyboardEventKeyDownHandler);
-        trace("Dealloc C memory (fails)");
+        trace("Dealloc C memory (disabled due to dealloc errors - fix it)");
         cByteData=null;
-        lib.freeByteArray();
+        //lib.freeByteArray();
         trace("Unshow bmp and release it");
         removeChild(bmp);
         bmp=null;
