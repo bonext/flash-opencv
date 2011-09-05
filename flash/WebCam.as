@@ -86,7 +86,7 @@ package{
         bmp =new Bitmap(frameDraw);
 
         //make an enter frame listener
-        //addEventListener(Event.ENTER_FRAME,enterFrameHandler);
+        addEventListener(Event.ENTER_FRAME,enterFrameHandler);
 
         //Add bmp to show 
         addChild(bmp);
@@ -107,25 +107,19 @@ package{
         var pixels:ByteArray = frameCapture.getPixels(bounds);
         pixels.position=0;
         trace("Pixels size in bytes: "+pixels.length);
-        //frameDraw.setPixels(bounds,pixels);
-
-        //Here we can make it faster?
-
-        //copy bytes from pixels to C memory
-        cByteData.writeBytes(pixels,0,pixels.length);
-        trace("Wrote data to C memory at "+_dataPosition+" ("+cByteData.bytesAvailable+" more bytes avaliable)");
-        trace("Wrote "+(cByteData.position-_dataPosition)+" bytes");
-        cByteData.position=_dataPosition;
+        
+        //C++ will do its dirty job here...
+        //first we have to make C++ aware of the pixels we want to use
+        //and actually copy them to C memory!
+        trace("Transferring pixels bytearray address to C++ lib");
+        trace(lib.setFramePtr(pixels,pixels.length));
+        pixels.position=0;
 
         trace("Here be C++ OpenCV magic");
         lib.testCV();
         trace("Magic OK");
 
-        trace("Set draw frame from C memory");
-        pixels.writeBytes(cByteData,_dataPosition,cByteData.length-_dataPosition);
-        pixels.position=0;
         frameDraw.setPixels(bounds,pixels);
-        cByteData.position=_dataPosition;//JIC
       }
     }
 
@@ -155,10 +149,12 @@ package{
           trace("RAM offset: "+cByteData.position);
           lib.testCV();
           trace("new RAM offset: "+cByteData.position);
+          trace("RAM left: "+cByteData.bytesAvailable);
         } else {
           if (e.keyCode==65){//a
             trace("Allocating in heap at "+_dataPosition);
             _dataPosition=lib.initByteArray(320*240);
+            trace("RAM left: "+cByteData.bytesAvailable);
           }
         }
       } 

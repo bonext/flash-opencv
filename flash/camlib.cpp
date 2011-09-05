@@ -38,13 +38,36 @@ static AS3_Val setFrameParams(void* self, AS3_Val args)
 
 void cvMagic()
 {
-  cv::Mat frame(frameHeight,frameWidth,CV_8UC3,(void*)buffer);
-  cv::Mat gs_frame(frameHeight,frameWidth,CV_8UC1);
+//cv::Mat frame(frameHeight,frameWidth,CV_8UC3,(void*)buffer);
+//cv::Mat gs_frame(frameHeight,frameWidth,CV_8UC1);
+  cv::Mat test(320,240,CV_8UC1,cv::Scalar(2.0));
+}
+
+static AS3_Val setFramePtr(void* self, AS3_Val args)
+{
+  //parse parameters
+  AS3_Val byteArr;
+  long szByteArr;
+  AS3_ArrayValue(args,"AS3ValType, IntType",&byteArr,&szByteArr);
+
+  //alloc memory for transfers
+  uchar *dst = new uchar[szByteArr];
+
+  //read data
+  AS3_ByteArray_readBytes((void*)dst,byteArr,szByteArr);
+  cv::Mat test(640,szByteArr/640,CV_8UC1,(void*)dst,640);
+  cv::Mat test2(320,240,CV_8UC1,cv::Scalar(1.0));
+
+  delete[] dst;
+
+  return AS3_Int(0);
 }
 
 //FLASH: OpenCV image fiddling
 static AS3_Val testCV(void* self, AS3_Val args)
 {
+  uchar *bytes = new uchar[320*240];
+
   cv::Mat gs_frame(320,240,CV_8UC1,cv::Scalar(1.0));
 //  while(1)
 //  {
@@ -53,6 +76,8 @@ static AS3_Val testCV(void* self, AS3_Val args)
 //
 //  delete[] bytes;
 //  }
+  cvMagic();
+  delete[] bytes;
   return 0;
 }
 
@@ -63,16 +88,21 @@ int main()
   AS3_Val freeByteArrayMethod=AS3_Function(NULL, freeByteArray);
   AS3_Val setFrameParamsMethod=AS3_Function(NULL, setFrameParams);
   AS3_Val testCVMethod = AS3_Function(NULL, testCV);
+  AS3_Val setFramePtrMethod = AS3_Function(NULL,setFramePtr);
 
   AS3_Val result = AS3_Object("initByteArray: AS3ValType,\
 			freeByteArray: AS3ValType,\
 			setFrameParams: AS3ValType,\
-      testCV: AS3ValType",
-			initByteArrayMethod,freeByteArrayMethod,setFrameParamsMethod,testCVMethod);
+      testCV: AS3ValType,\
+      setFramePtr: AS3ValType",
+			initByteArrayMethod,freeByteArrayMethod,setFrameParamsMethod,
+      testCVMethod,setFramePtrMethod);
 
   AS3_Release(initByteArrayMethod);
   AS3_Release(freeByteArrayMethod);
   AS3_Release(setFrameParamsMethod);
+  AS3_Release(testCVMethod);
+  AS3_Release(setFramePtrMethod);
 
   AS3_LibInit(result);
 
