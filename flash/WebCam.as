@@ -47,8 +47,12 @@ package{
       var loader:CLibInit=new CLibInit();
       lib=loader.init();
       var ns:Namespace = new Namespace("cmodule.camlib");
-      //get C byte data pointer
+      //get C byte data pointer (that is, C RAM chunk)
       cByteData=(ns::gstate).ds; 
+      trace("Initilaized C library");
+      trace("Total RAM size: "+cByteData.length);
+      trace("Data start offset: "+cByteData.position);
+      trace("Bytes available: "+cByteData.bytesAvailable);
     }
 		
     private function setupCamera():void
@@ -73,16 +77,16 @@ package{
         //get pointer to C byte data
         trace("Allocating "+pixels.length+" bytes in C memory");
         _dataPosition=lib.initByteArray(pixels.length);
-        trace("Offset in memory: "+_dataPosition);
+        trace("Allocated at "+_dataPosition);
         
         trace("Transfering frame parameters to C libraries");
         //set frame properties for C memory libraries
-        lib.setFrameParams(frameCapture.width,frameCapture.height,pixels.length/(frameCapture.width*frameCapture.height));
+        //lib.setFrameParams(frameCapture.width,frameCapture.height,pixels.length/(frameCapture.width*frameCapture.height));
         //create a drawing bitmap
         bmp =new Bitmap(frameDraw);
 
         //make an enter frame listener
-        addEventListener(Event.ENTER_FRAME,enterFrameHandler);
+        //addEventListener(Event.ENTER_FRAME,enterFrameHandler);
 
         //Add bmp to show 
         addChild(bmp);
@@ -102,14 +106,16 @@ package{
         var bounds:Rectangle=new Rectangle(0,0,frameCapture.width,frameCapture.height);
         var pixels:ByteArray = frameCapture.getPixels(bounds);
         pixels.position=0;
-        trace("Pixels bytesize: "+pixels.length);
+        trace("Pixels size in bytes: "+pixels.length);
         //frameDraw.setPixels(bounds,pixels);
 
+        //Here we can make it faster?
+
         //copy bytes from pixels to C memory
-        trace("Write data to C memory ("+cByteData.length+" bytes avaliable)");
         cByteData.writeBytes(pixels,0,pixels.length);
+        trace("Wrote data to C memory at "+_dataPosition+" ("+cByteData.bytesAvailable+" more bytes avaliable)");
+        trace("Wrote "+(cByteData.position-_dataPosition)+" bytes");
         cByteData.position=_dataPosition;
-        trace("Data size: "+cByteData.length);
 
         trace("Here be C++ OpenCV magic");
         lib.testCV();
@@ -143,6 +149,12 @@ package{
         video=null;
         trace("Release camera");
         camera=null;
+      } else {
+        if (e.keyCode==65){//a
+          trace("Allocating 524288 bytes at "+_dataPosition);
+          _dataPosition=lib.initByteArray(524288);
+          trace("Allocation done.");
+        }
       }
     }
   }
