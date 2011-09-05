@@ -45,6 +45,7 @@ void cvMagic()
 //FLASH: OpenCV image fiddling
 static AS3_Val testCV(void* self, AS3_Val args)
 {
+  cv::Mat gs_frame(320,240,CV_8UC1,cv::Scalar(1.0));
 //  while(1)
 //  {
 //  long size = (1<<15); // 2^16 = 65536

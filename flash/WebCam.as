@@ -150,12 +150,18 @@ package{
         trace("Release camera");
         camera=null;
       } else {
-        if (e.keyCode==65){//a
-          trace("Allocating 524288 bytes at "+_dataPosition);
-          _dataPosition=lib.initByteArray(524288);
-          trace("Allocation done.");
+        if (e.keyCode==67){//c
+          trace("Testing heap allocation");
+          trace("RAM offset: "+cByteData.position);
+          lib.testCV();
+          trace("new RAM offset: "+cByteData.position);
+        } else {
+          if (e.keyCode==65){//a
+            trace("Allocating in heap at "+_dataPosition);
+            _dataPosition=lib.initByteArray(320*240);
+          }
         }
-      }
+      } 
     }
   }
 }
