@@ -105,6 +105,7 @@ package{
         trace("Get pixel data from frame");
         var bounds:Rectangle=new Rectangle(0,0,frameCapture.width,frameCapture.height);
         var pixels:ByteArray = frameCapture.getPixels(bounds);
+
         pixels.position=0;
         trace("Pixels size in bytes: "+pixels.length);
         
@@ -114,10 +115,6 @@ package{
         trace("Transferring pixels bytearray address to C++ lib");
         trace(lib.setFramePtr(pixels,pixels.length));
         pixels.position=0;
-
-        trace("Here be C++ OpenCV magic");
-        lib.testCV();
-        trace("Magic OK");
 
         frameDraw.setPixels(bounds,pixels);
       }
