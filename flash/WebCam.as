@@ -113,10 +113,11 @@ package{
         //first we have to make C++ aware of the pixels we want to use
         //and actually copy them to C memory!
         trace("Transferring pixels bytearray address to C++ lib");
-        trace(lib.setFramePtr(pixels,pixels.length));
-        pixels.position=0;
+        //trace(lib.setFramePtr(pixels,pixels.length));
+        var outPixels:ByteArray = lib.setFramePtr(pixels,pixels.length);
+        outPixels.position=0;
 
-        frameDraw.setPixels(bounds,pixels);
+        frameDraw.setPixels(bounds,outPixels);
       }
     }
 

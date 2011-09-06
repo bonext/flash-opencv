@@ -43,30 +43,26 @@ static AS3_Val setFramePtr(void* self, AS3_Val args)
 
   //alloc memory for transfers
   uchar *dst = new uchar[szByteArr];
-  uchar *rgb_dst = new uchar[3*szByteArr/4];
 
   //read data
   AS3_ByteArray_readBytes((void*)dst,byteArr,szByteArr);
 
   //convert to RGB from RGBA
-  for (int k=0, j=0; k<szByteArr; ++k)
-  {
-    if (k%4==0) {
-      continue;
-    } else {
-      rgb_dst[j++]=dst[k];
-    }
-  }
-
-  cv::Mat frame(640,480,CV_8UC3,(void*)rgb_dst,640);
+  cv::Mat frame(640,480,CV_8UC4,(void*)dst);
+  
   cv::Mat gs_frame;
 
-  cv::cvtColor(frame,gs_frame,CV_RGB2GRAY);
+  cv::cvtColor(frame,gs_frame,CV_RGBA2GRAY);
 
-  delete[] rgb_dst;
+  int from_to[]={0,1, 0,2, 0,3};
+  mixChannels(&gs_frame,1,&frame,1,from_to,3);
+
+  AS3_ByteArray_seek(byteArr,0,SEEK_SET);
+  AS3_ByteArray_writeBytes(byteArr,frame.data,szByteArr);
+  
   delete[] dst;
   
-  return AS3_Int(0);
+  return byteArr;
 }
 
 //entry point
